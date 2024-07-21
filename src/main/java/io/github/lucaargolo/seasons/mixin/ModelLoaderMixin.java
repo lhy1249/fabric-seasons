@@ -36,7 +36,7 @@ public class ModelLoaderMixin {
     @Inject(at = @At("RETURN"), method = "loadModelFromJson", locals = LocalCapture.CAPTURE_FAILSOFT)
     public void injectSeasonalModels(Identifier id, CallbackInfoReturnable<JsonUnbakedModel> cir) {
         MinecraftClient client = MinecraftClient.getInstance();
-        Optional<Resource> optional = client.getResourceManager().getResource(new Identifier(id.getNamespace(), "seasons/models/" + id.getPath() + ".json"));
+        Optional<Resource> optional = client.getResourceManager().getResource(Identifier.of(id.getNamespace(), "seasons/models/" + id.getPath() + ".json"));
         if(optional.isPresent()) {
             Resource resource = optional.get();
             try {

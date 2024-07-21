@@ -11,3 +11,4 @@ accessible field net/minecraft/client/option/KeyBinding boundKey Lnet/minecraft/
 accessible method net/minecraft/world/biome/Biome getTemperature (Lnet/minecraft/util/math/BlockPos;)F
 accessible method net/minecraft/client/render/model/json/JsonUnbakedModel$Deserializer resolveReference (Lnet/minecraft/util/Identifier;Ljava/lang/String;)Lcom/mojang/datafixers/util/Either;
 mutable field net/minecraft/client/render/model/json/JsonUnbakedModel textureMap Ljava/util/Map;
+accessible method net/minecraft/block/AbstractBlock randomTick (Lnet/minecraft/block/BlockState;Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/random/Random;)V

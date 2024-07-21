@@ -77,20 +77,20 @@ public class SeasonDebugCommand {
                     if(optional.isPresent()) {
                         MinecraftClient client = MinecraftClient.getInstance();
                         Identifier blockId = optional.get().getValue();
-                        Optional<Resource> optional2 = client.getResourceManager().getResource(new Identifier(blockId.getNamespace(), "blockstates/"+blockId.getPath()+".json"));
+                        Optional<Resource> optional2 = client.getResourceManager().getResource(Identifier.of(blockId.getNamespace(), "blockstates/"+blockId.getPath()+".json"));
                         if(optional2.isPresent()) {
                             Resource blockState = optional2.get();
                             try {
                                 HashSet<Identifier> models = collectModels(new HashSet<>(), JsonParser.parseReader(new InputStreamReader(blockState.getInputStream(), StandardCharsets.UTF_8)));
                                 models.forEach((model) -> {
-                                    Identifier modelId = new Identifier(model.getNamespace(), "models/"+model.getPath()+".json");
+                                    Identifier modelId = Identifier.of(model.getNamespace(), "models/"+model.getPath()+".json");
                                     Optional<Resource> optional3 = client.getResourceManager().getResource(modelId);
                                     if(optional3.isPresent()) {
                                         Resource blockModel = optional3.get();
                                         try {
                                             HashMap<String, Identifier> textures = collectTextures(new HashMap<>(), client.getResourceManager(), JsonParser.parseReader(new InputStreamReader(blockModel.getInputStream(), StandardCharsets.UTF_8)));
                                             textures.forEach((name, id) -> {
-                                                Optional<Resource> optional4 = client.getResourceManager().getResource(new Identifier(id.getNamespace(), "textures/"+id.getPath()+".png"));
+                                                Optional<Resource> optional4 = client.getResourceManager().getResource(Identifier.of(id.getNamespace(), "textures/"+id.getPath()+".png"));
                                                 if(optional4.isPresent()) {
                                                     Resource texture = optional4.get();
                                                     try {
@@ -122,14 +122,14 @@ public class SeasonDebugCommand {
                     if(optional.isPresent()) {
                         MinecraftClient client = MinecraftClient.getInstance();
                         Identifier itemId = optional.get().getValue();
-                        Identifier modelId = new Identifier(itemId.getNamespace(), "models/item/"+itemId.getPath()+".json");
+                        Identifier modelId = Identifier.of(itemId.getNamespace(), "models/item/"+itemId.getPath()+".json");
                         Optional<Resource> optional2 = client.getResourceManager().getResource(modelId);
                         if(optional2.isPresent()) {
                             Resource itemModel = optional2.get();
                             try {
                                 HashMap<String, Identifier> textures = collectTextures(new HashMap<>(), client.getResourceManager(), JsonParser.parseReader(new InputStreamReader(itemModel.getInputStream(), StandardCharsets.UTF_8)));
                                 textures.forEach((name, id) -> {
-                                    Optional<Resource> optional4 = client.getResourceManager().getResource(new Identifier(id.getNamespace(), "textures/"+id.getPath()+".png"));
+                                    Optional<Resource> optional4 = client.getResourceManager().getResource(Identifier.of(id.getNamespace(), "textures/"+id.getPath()+".png"));
                                     if(optional4.isPresent()) {
                                         Resource texture = optional4.get();
                                         try {
@@ -152,9 +152,9 @@ public class SeasonDebugCommand {
                 ClientPlayerEntity player = context.getSource().getPlayer();
                 List<RegistryEntry<Biome>> entries = new ArrayList<>();
                 player.getWorld().getRegistryManager().get(RegistryKeys.BIOME).getIndexedEntries().forEach(entries::add);
-                entries.sort(Comparator.comparing(entry -> entry.getKey().orElse(RegistryKey.of(RegistryKeys.BIOME, new Identifier("missingno"))).getValue().toString()));
+                entries.sort(Comparator.comparing(entry -> entry.getKey().orElse(RegistryKey.of(RegistryKeys.BIOME, Identifier.of("missingno"))).getValue().toString()));
                 AtomicReference<String> str = new AtomicReference<>("\n");
-                entries.forEach((entry) -> str.updateAndGet(s -> s + entry.getKey().orElse(RegistryKey.of(RegistryKeys.BIOME, new Identifier("missingno"))).getValue().toString() + "\n"));
+                entries.forEach((entry) -> str.updateAndGet(s -> s + entry.getKey().orElse(RegistryKey.of(RegistryKeys.BIOME, Identifier.of("missingno"))).getValue().toString() + "\n"));
                 System.out.println(str.get());
                 return 1;
             }))
@@ -223,35 +223,39 @@ public class SeasonDebugCommand {
 
     private static HashMap<String, Identifier> collectTextures(HashMap<String, Identifier> map, ResourceManager manager, JsonElement element) throws IOException {
         JsonObject model = element.getAsJsonObject();
-        if(model.has("parent")) {
-            Identifier parent = new Identifier(model.get("parent").getAsString());
-            Optional<Resource> optional = manager.getResource(new Identifier(parent.getNamespace(), "models/"+parent.getPath()+".json"));
-            if(optional.isPresent()) {
+        
+        if (model.has("parent")) {
+            Identifier parent = Identifier.of(model.get("parent").getAsString());
+            Optional<Resource> optional = manager.getResource(Identifier.of(parent.getNamespace(), "models/" + parent.getPath() + ".json"));
+            if (optional.isPresent()) {
                 Resource parentModel = optional.get();
                 collectTextures(map, manager, JsonParser.parseReader(new InputStreamReader(parentModel.getInputStream(), StandardCharsets.UTF_8)));
             }
         }
-        if(model.has("textures")) {
+        
+        if (model.has("textures")) {
             JsonObject textures = model.getAsJsonObject("textures");
             textures.entrySet().forEach((entry) -> {
-                if(Identifier.isValid(entry.getValue().getAsString())) {
-                    map.put(entry.getKey(), new Identifier(entry.getValue().getAsString()));
+                final Identifier identifier = Identifier.tryParse(entry.getValue().getAsString());
+                if (identifier != null) {
+                    map.put(entry.getKey(), identifier);
                 }
             });
         }
+        
         return map;
     }
 
     private static HashSet<Identifier> collectModels(HashSet<Identifier> set, JsonElement element) {
-        if(element.isJsonObject()) {
+        if (element.isJsonObject()) {
             element.getAsJsonObject().entrySet().forEach((entry) -> {
-                if(Objects.equals(entry.getKey(), "model") && entry.getValue().isJsonPrimitive() && entry.getValue().getAsJsonPrimitive().isString()) {
-                    set.add(new Identifier(entry.getValue().getAsString()));
-                }else{
+                if (Objects.equals(entry.getKey(), "model") && entry.getValue().isJsonPrimitive() && entry.getValue().getAsJsonPrimitive().isString()) {
+                    set.add(Identifier.of(entry.getValue().getAsString()));
+                } else {
                     collectModels(set, entry.getValue());
                 }
             });
-        }else if(element.isJsonArray()) {
+        } else if (element.isJsonArray()) {
             element.getAsJsonArray().forEach((innerElement) -> {
                 collectModels(set, innerElement);
             });
@@ -281,7 +285,7 @@ public class SeasonDebugCommand {
                         String innerLast = innerSplit[innerSplit.length-1];
                         innerSplit[innerSplit.length-1] = "";
                         String innerJoin = String.join("/", innerSplit);
-                        textureMapJson.add(key, new JsonPrimitive(new Identifier(value.getNamespace(),innerJoin + s.name().toLowerCase(Locale.ROOT) + "_" + innerLast).toString()));
+                        textureMapJson.add(key, new JsonPrimitive(Identifier.of(value.getNamespace(),innerJoin + s.name().toLowerCase(Locale.ROOT) + "_" + innerLast).toString()));
                     });
                     textureJson.add(s.name().toLowerCase(Locale.ROOT), textureMapJson);
                 }

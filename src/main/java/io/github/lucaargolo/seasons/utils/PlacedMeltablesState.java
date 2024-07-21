@@ -3,10 +3,13 @@ package io.github.lucaargolo.seasons.utils;
 import io.github.lucaargolo.seasons.FabricSeasons;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import it.unimi.dsi.fastutil.longs.LongArraySet;
+import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtLongArray;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.ForcedChunkState;
 import net.minecraft.world.PersistentState;
 
 import static io.github.lucaargolo.seasons.FabricSeasons.MOD_NAME;
@@ -42,7 +45,7 @@ public class PlacedMeltablesState extends PersistentState {
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         chunkToPlaced.long2ObjectEntrySet().fastForEach(entry -> {
             if(!entry.getValue().isEmpty()) {
                 nbt.put(entry.getLongKey() + "", new NbtLongArray(entry.getValue()));
@@ -50,7 +53,8 @@ public class PlacedMeltablesState extends PersistentState {
         });
         return nbt;
     }
-    public static PlacedMeltablesState createFromNbt(NbtCompound nbt) {
+    
+    public static PlacedMeltablesState createFromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         PlacedMeltablesState state = new PlacedMeltablesState();
         nbt.getKeys().forEach(key -> {
             try {
@@ -62,5 +66,9 @@ public class PlacedMeltablesState extends PersistentState {
             }
         });
         return state;
+    }
+    
+    public static PersistentState.Type<PlacedMeltablesState> getPersistentStateType() {
+        return new PersistentState.Type<>(PlacedMeltablesState::new, PlacedMeltablesState::createFromNbt, null);
     }
 }

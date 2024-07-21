@@ -15,7 +15,7 @@ import net.minecraft.world.biome.Biome;
 
 public interface Meltable {
 
-    TagKey<Block> REPLACEABLE_BY_SNOW = TagKey.of(RegistryKeys.BLOCK, new ModIdentifier("replaceable_by_snow"));
+    TagKey<Block> REPLACEABLE_BY_SNOW = TagKey.of(RegistryKeys.BLOCK, FabricSeasons.identifier("replaceable_by_snow"));
 
     default void onMeltableReplaced(ServerWorld world, BlockPos pos) {
         FabricSeasons.getPlacedMeltablesState(world).setManuallyPlaced(pos, false);

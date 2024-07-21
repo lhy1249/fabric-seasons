@@ -2,7 +2,6 @@ package io.github.lucaargolo.seasons.resources;
 
 import com.google.gson.JsonParser;
 import io.github.lucaargolo.seasons.FabricSeasons;
-import io.github.lucaargolo.seasons.utils.ModIdentifier;
 import io.github.lucaargolo.seasons.utils.Season;
 import io.github.lucaargolo.seasons.utils.SeasonColor;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
@@ -22,10 +21,10 @@ import static io.github.lucaargolo.seasons.FabricSeasons.MOD_NAME;
 
 public class FoliageSeasonColors implements SimpleSynchronousResourceReloadListener {
 
-    private static final Identifier SPRING_FOLIAGE_COLORMAP = new ModIdentifier("textures/colormap/spring_foliage.png");
-    private static final Identifier SUMMER_FOLIAGE_COLORMAP = new ModIdentifier("textures/colormap/summer_foliage.png");
-    private static final Identifier FALL_FOLIAGE_COLORMAP = new ModIdentifier("textures/colormap/fall_foliage.png");
-    private static final Identifier WINTER_FOLIAGE_COLORMAP = new ModIdentifier("textures/colormap/winter_foliage.png");
+    private static final Identifier SPRING_FOLIAGE_COLORMAP = FabricSeasons.identifier("textures/colormap/spring_foliage.png");
+    private static final Identifier SUMMER_FOLIAGE_COLORMAP = FabricSeasons.identifier("textures/colormap/summer_foliage.png");
+    private static final Identifier FALL_FOLIAGE_COLORMAP = FabricSeasons.identifier("textures/colormap/fall_foliage.png");
+    private static final Identifier WINTER_FOLIAGE_COLORMAP = FabricSeasons.identifier("textures/colormap/winter_foliage.png");
 
     private static int[] springColorMap = new int[65536];
     private static int[] summerColorMap = new int[65536];
@@ -75,18 +74,18 @@ public class FoliageSeasonColors implements SimpleSynchronousResourceReloadListe
 
     @Override
     public Identifier getFabricId() {
-        return new ModIdentifier("foliage_season_colors");
+        return FabricSeasons.identifier("foliage_season_colors");
     }
 
     @SuppressWarnings("deprecation")
     @Override
     public void reload(ResourceManager manager) {
         try{
-            Resource spruceFoliage = manager.getResource(new ModIdentifier("hardcoded/foliage/spruce.json")).orElseThrow();
+            Resource spruceFoliage = manager.getResource(FabricSeasons.identifier("hardcoded/foliage/spruce.json")).orElseThrow();
             minecraftSpruceFoliage = new SeasonColor(JsonParser.parseReader(new InputStreamReader(spruceFoliage.getInputStream(), StandardCharsets.UTF_8)));
-            Resource birchFoliage = manager.getResource(new ModIdentifier("hardcoded/foliage/birch.json")).orElseThrow();
+            Resource birchFoliage = manager.getResource(FabricSeasons.identifier("hardcoded/foliage/birch.json")).orElseThrow();
             minecraftBirchFoliage = new SeasonColor(JsonParser.parseReader(new InputStreamReader(birchFoliage.getInputStream(), StandardCharsets.UTF_8)));
-            Resource defaultFoliage = manager.getResource(new ModIdentifier("hardcoded/foliage/default.json")).orElseThrow();
+            Resource defaultFoliage = manager.getResource(FabricSeasons.identifier("hardcoded/foliage/default.json")).orElseThrow();
             minecraftDefaultFoliage = new SeasonColor(JsonParser.parseReader(new InputStreamReader(defaultFoliage.getInputStream(), StandardCharsets.UTF_8)));
         }catch (Exception e) {
             FabricSeasons.LOGGER.error("["+MOD_NAME+"] Failed to load hardcoded foliage colors", e);
@@ -94,7 +93,7 @@ public class FoliageSeasonColors implements SimpleSynchronousResourceReloadListe
         foliageColorMap.clear();
         manager.findResources("seasons/foliage", id -> id.getPath().endsWith(".json")).forEach((id, resource) -> {
             String[] split = id.getPath().split("/");
-            Identifier biomeIdentifier = new Identifier(id.getNamespace(), split[split.length-1].replace(".json", ""));
+            Identifier biomeIdentifier = Identifier.of(id.getNamespace(), split[split.length-1].replace(".json", ""));
             try {
                 SeasonColor colors = new SeasonColor(JsonParser.parseReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8)));
                 foliageColorMap.put(biomeIdentifier, colors);

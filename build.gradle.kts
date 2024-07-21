@@ -213,3 +213,10 @@ publishing {
 
     }
 }
+
+idea {
+    module {
+        isDownloadSources = true
+        isDownloadJavadoc = true
+    }
+}

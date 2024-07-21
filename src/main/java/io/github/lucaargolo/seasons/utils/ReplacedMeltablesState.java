@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.PersistentState;
@@ -46,12 +47,12 @@ public class ReplacedMeltablesState extends PersistentState {
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         chunkToReplaced.long2ObjectEntrySet().fastForEach(entry -> {
             if(!entry.getValue().isEmpty()) {
                 NbtCompound innerNbt = new NbtCompound();
                 entry.getValue().long2ObjectEntrySet().fastForEach(innerEntry -> {
-                    BlockState.CODEC.encode(innerEntry.getValue(), NbtOps.INSTANCE, NbtOps.INSTANCE.empty()).get().ifLeft((element) -> {
+                    BlockState.CODEC.encode(innerEntry.getValue(), NbtOps.INSTANCE, NbtOps.INSTANCE.empty()).ifSuccess((element) -> {
                         innerNbt.put(innerEntry.getLongKey() + "", element);
                     });
                 });
@@ -60,7 +61,8 @@ public class ReplacedMeltablesState extends PersistentState {
         });
         return nbt;
     }
-    public static ReplacedMeltablesState createFromNbt(NbtCompound nbt) {
+    
+    public static ReplacedMeltablesState createFromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         ReplacedMeltablesState state = new ReplacedMeltablesState();
         nbt.getKeys().forEach(key -> {
             try {
@@ -69,7 +71,7 @@ public class ReplacedMeltablesState extends PersistentState {
                 NbtCompound innerNbt = nbt.getCompound(key);
                 innerNbt.getKeys().forEach(innerKey -> {
                     long innerLongKey = Long.parseLong(innerKey);
-                    BlockState.CODEC.decode(NbtOps.INSTANCE, innerNbt.get(innerKey)).get().ifLeft((pair) -> {
+                    BlockState.CODEC.decode(NbtOps.INSTANCE, innerNbt.get(innerKey)).ifSuccess((pair) -> {
                         BlockState replacedState = pair.getFirst();
                         posToReplaced.put(innerLongKey, replacedState);
                     });
@@ -80,5 +82,9 @@ public class ReplacedMeltablesState extends PersistentState {
             }
         });
         return state;
+    }
+    
+    public static PersistentState.Type<ReplacedMeltablesState> getPersistentStateType() {
+        return new PersistentState.Type<>(ReplacedMeltablesState::new, ReplacedMeltablesState::createFromNbt, null);
     }
 }
