@@ -33,7 +33,7 @@ public abstract class JsonUnbakedModelMixin implements JsonUnbakedModelMixed {
 
     @Shadow protected Map<String, Either<SpriteIdentifier, String>> textureMap;
 
-    @Shadow public abstract BakedModel bake(Baker baker, JsonUnbakedModel parent, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings settings, Identifier id, boolean hasDepth);
+    @Shadow public abstract BakedModel bake(Baker baker, JsonUnbakedModel parent, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings settings, boolean hasDepth);
 
     private Map<Season, Map<String, Either<SpriteIdentifier, String>>> seasonalTextureMap;
     private Map<String, Either<SpriteIdentifier, String>> originalTextureMap;
@@ -53,8 +53,8 @@ public abstract class JsonUnbakedModelMixin implements JsonUnbakedModelMixed {
         this.seasonalTextureMap = seasonalTextureMap;
     }
 
-    @Inject(at = @At("RETURN"), method = "bake(Lnet/minecraft/client/render/model/Baker;Lnet/minecraft/client/render/model/json/JsonUnbakedModel;Ljava/util/function/Function;Lnet/minecraft/client/render/model/ModelBakeSettings;Lnet/minecraft/util/Identifier;Z)Lnet/minecraft/client/render/model/BakedModel;")
-    public void collectSeasonalModels(Baker baker, JsonUnbakedModel parent, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings settings, Identifier id, boolean hasDepth, CallbackInfoReturnable<BakedModel> cir) {
+    @Inject(at = @At("RETURN"), method = "bake(Lnet/minecraft/client/render/model/Baker;Lnet/minecraft/client/render/model/json/JsonUnbakedModel;Ljava/util/function/Function;Lnet/minecraft/client/render/model/ModelBakeSettings;Z)Lnet/minecraft/client/render/model/BakedModel;")
+    public void collectSeasonalModels(Baker baker, JsonUnbakedModel parent, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings settings, boolean hasDepth, CallbackInfoReturnable<BakedModel> cir) {
         BakedModel originalModel = cir.getReturnValue();
         if(seasonalTextureMap != null && this.textureMap == this.originalTextureMap) {
             seasonalTextureMap.forEach((season, textureMap) -> {
@@ -62,7 +62,7 @@ public abstract class JsonUnbakedModelMixin implements JsonUnbakedModelMixed {
                 if(!FabricSeasonsClient.originalToSeasonModelMap.containsKey(originalModel)) {
                     FabricSeasonsClient.originalToSeasonModelMap.put(originalModel, Maps.newHashMap());
                 }
-                FabricSeasonsClient.originalToSeasonModelMap.get(originalModel).put(season, bake(baker, parent, textureGetter, settings, id, hasDepth));
+                FabricSeasonsClient.originalToSeasonModelMap.get(originalModel).put(season, bake(baker, parent, textureGetter, settings, hasDepth));
             });
             this.textureMap = originalTextureMap;
         }

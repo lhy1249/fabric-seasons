@@ -2,7 +2,6 @@ package io.github.lucaargolo.seasons.resources;
 
 import com.google.gson.JsonParser;
 import io.github.lucaargolo.seasons.FabricSeasons;
-import io.github.lucaargolo.seasons.utils.ModIdentifier;
 import io.github.lucaargolo.seasons.utils.Season;
 import io.github.lucaargolo.seasons.utils.SeasonColor;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
@@ -22,10 +21,10 @@ import static io.github.lucaargolo.seasons.FabricSeasons.MOD_NAME;
 
 public class GrassSeasonColors implements SimpleSynchronousResourceReloadListener {
 
-    private static final Identifier SPRING_GRASS_COLORMAP = new ModIdentifier("textures/colormap/spring_grass.png");
-    private static final Identifier SUMMER_GRASS_COLORMAP = new ModIdentifier("textures/colormap/summer_grass.png");
-    private static final Identifier FALL_GRASS_COLORMAP = new ModIdentifier("textures/colormap/fall_grass.png");
-    private static final Identifier WINTER_GRASS_COLORMAP = new ModIdentifier("textures/colormap/winter_grass.png");
+    private static final Identifier SPRING_GRASS_COLORMAP = FabricSeasons.identifier("textures/colormap/spring_grass.png");
+    private static final Identifier SUMMER_GRASS_COLORMAP = FabricSeasons.identifier("textures/colormap/summer_grass.png");
+    private static final Identifier FALL_GRASS_COLORMAP = FabricSeasons.identifier("textures/colormap/fall_grass.png");
+    private static final Identifier WINTER_GRASS_COLORMAP = FabricSeasons.identifier("textures/colormap/winter_grass.png");
 
     private static int[] springColorMap = new int[65536];
     private static int[] summerColorMap = new int[65536];
@@ -70,16 +69,16 @@ public class GrassSeasonColors implements SimpleSynchronousResourceReloadListene
 
     @Override
     public Identifier getFabricId() {
-        return new ModIdentifier("grass_season_colors");
+        return FabricSeasons.identifier("grass_season_colors");
     }
 
     @SuppressWarnings("deprecation")
     @Override
     public void reload(ResourceManager manager) {
         try{
-            Resource swampGrass1 = manager.getResource(new ModIdentifier("hardcoded/grass/swamp1.json")).orElseThrow();
+            Resource swampGrass1 = manager.getResource(FabricSeasons.identifier("hardcoded/grass/swamp1.json")).orElseThrow();
             minecraftSwampGrass1 = new SeasonColor(JsonParser.parseReader(new InputStreamReader(swampGrass1.getInputStream(), StandardCharsets.UTF_8)));
-            Resource swampGrass2 = manager.getResource(new ModIdentifier("hardcoded/grass/swamp2.json")).orElseThrow();
+            Resource swampGrass2 = manager.getResource(FabricSeasons.identifier("hardcoded/grass/swamp2.json")).orElseThrow();
             minecraftSwampGrass2 = new SeasonColor(JsonParser.parseReader(new InputStreamReader(swampGrass2.getInputStream(), StandardCharsets.UTF_8)));
         }catch (Exception e) {
             FabricSeasons.LOGGER.error("["+MOD_NAME+"] Failed to load hardcoded grass colors", e);
@@ -87,7 +86,7 @@ public class GrassSeasonColors implements SimpleSynchronousResourceReloadListene
         grassColorMap.clear();
         manager.findResources("seasons/grass", id -> id.getPath().endsWith(".json")).forEach((id, resource) -> {
             String[] split = id.getPath().split("/");
-            Identifier biomeIdentifier = new Identifier(id.getNamespace(), split[split.length-1].replace(".json", ""));
+            Identifier biomeIdentifier = Identifier.of(id.getNamespace(), split[split.length-1].replace(".json", ""));
             try {
                 SeasonColor colors = new SeasonColor(JsonParser.parseReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8)));
                 grassColorMap.put(biomeIdentifier, colors);

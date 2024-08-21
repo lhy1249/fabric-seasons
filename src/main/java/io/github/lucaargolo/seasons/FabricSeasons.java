@@ -5,8 +5,15 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import io.github.lucaargolo.seasons.commands.SeasonCommand;
 import io.github.lucaargolo.seasons.mixed.BiomeMixed;
+import io.github.lucaargolo.seasons.payload.ConfigSyncPacket;
+import io.github.lucaargolo.seasons.payload.UpdateCropsPaycket;
 import io.github.lucaargolo.seasons.resources.CropConfigs;
-import io.github.lucaargolo.seasons.utils.*;
+import io.github.lucaargolo.seasons.utils.GreenhouseCache;
+import io.github.lucaargolo.seasons.utils.ModConfig;
+import io.github.lucaargolo.seasons.utils.PlacedMeltablesState;
+import io.github.lucaargolo.seasons.utils.ReplacedMeltablesState;
+import io.github.lucaargolo.seasons.utils.Season;
+import io.github.lucaargolo.seasons.utils.SeasonalFertilizable;
 import it.unimi.dsi.fastutil.longs.LongArraySet;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -14,7 +21,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
@@ -23,7 +30,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -62,62 +68,53 @@ public class FabricSeasons implements ModInitializer {
 
     public static HashMap<Item, Block> SEEDS_MAP = new HashMap<>();
 
-    public static Identifier ASK_FOR_CONFIG = new ModIdentifier("ask_for_config");
-    public static Identifier ANSWER_CONFIG = new ModIdentifier("anwer_config");
-
-    public static Identifier UPDATE_CROPS = new ModIdentifier("update_crops");
-
-
     @Override
     public void onInitialize() {
-
         Path configPath = FabricLoader.getInstance().getConfigDir();
         File configFile = new File(configPath + File.separator + "seasons.json");
-
-        LOGGER.info("["+MOD_NAME+"] Trying to read config file...");
+        
+        LOGGER.info("[" + MOD_NAME + "] Trying to read config file...");
         try {
             if (configFile.createNewFile()) {
-                LOGGER.info("["+MOD_NAME+"] No config file found, creating a new one...");
+                LOGGER.info("[" + MOD_NAME + "] No config file found, creating a new one...");
                 String json = GSON.toJson(JsonParser.parseString(GSON.toJson(new ModConfig())));
                 try (PrintWriter out = new PrintWriter(configFile)) {
                     out.println(json);
                 }
                 CONFIG = new ModConfig();
-                LOGGER.info("["+MOD_NAME+"] Successfully created default config file.");
+                LOGGER.info("[" + MOD_NAME + "] Successfully created default config file.");
             } else {
-                LOGGER.info("["+MOD_NAME+"] A config file was found, loading it..");
+                LOGGER.info("[" + MOD_NAME + "] A config file was found, loading it..");
                 CONFIG = GSON.fromJson(new String(Files.readAllBytes(configFile.toPath())), ModConfig.class);
-                if(CONFIG == null) {
-                    throw new NullPointerException("["+MOD_NAME+"] The config file was empty.");
-                }else{
-                    LOGGER.info("["+MOD_NAME+"] Successfully loaded config file.");
+                if (CONFIG == null) {
+                    throw new NullPointerException("[" + MOD_NAME + "] The config file was empty.");
+                } else {
+                    LOGGER.info("[" + MOD_NAME + "] Successfully loaded config file.");
                 }
             }
-        }catch (Exception exception) {
-            LOGGER.error("["+MOD_NAME+"] There was an error creating/loading the config file!", exception);
+        } catch (Exception exception) {
+            LOGGER.error("[" + MOD_NAME + "] There was an error creating/loading the config file!", exception);
             CONFIG = new ModConfig();
-            LOGGER.warn("["+MOD_NAME+"] Defaulting to original config.");
+            LOGGER.warn("[" + MOD_NAME + "] Defaulting to original config.");
         }
-
+        
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated, ignored) -> SeasonCommand.register(dispatcher));
-
+        
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             SEEDS_MAP.clear();
             Registries.ITEM.forEach(item -> {
-                if(item instanceof BlockItem) {
+                if (item instanceof BlockItem) {
                     Block block = ((BlockItem) item).getBlock();
-                    if(block instanceof SeasonalFertilizable) {
+                    if (block instanceof SeasonalFertilizable) {
                         FabricSeasons.SEEDS_MAP.put(item, ((BlockItem) item).getBlock());
                     }
                 }
             });
         });
-
+        
+        PayloadTypeRegistry.playS2C().register(UpdateCropsPaycket.ID, UpdateCropsPaycket.CODEC);
         ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> {
-            PacketByteBuf buf = PacketByteBufs.create();
-            CropConfigs.getDefaultCropConfig().toBuf(buf);
-            CropConfigs.toBuf(buf);
-            ServerPlayNetworking.send(player, UPDATE_CROPS, buf);
+            ServerPlayNetworking.send(player, UpdateCropsPaycket.fromConfig(CropConfigs.getDefaultCropConfig(), CropConfigs.getCropConfigMap()));
         });
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
@@ -125,14 +122,19 @@ public class FabricSeasons implements ModInitializer {
             temporaryMeltableCache.clear();
         });
 
-        ServerPlayNetworking.registerGlobalReceiver(ASK_FOR_CONFIG, (server, player, handler, buf, responseSender) -> {
+        PayloadTypeRegistry.playS2C().register(ConfigSyncPacket.ID, ConfigSyncPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(ConfigSyncPacket.ID, ConfigSyncPacket.CODEC);
+        
+        ServerPlayNetworking.registerGlobalReceiver(ConfigSyncPacket.ID, (payload, context) -> {
             String configJson = GSON.toJson(JsonParser.parseString(GSON.toJson(CONFIG)));
-            PacketByteBuf configBuf = PacketByteBufs.create();
-            configBuf.writeString(configJson);
-            ServerPlayNetworking.send(player, ANSWER_CONFIG, configBuf);
+            ServerPlayNetworking.send(context.player(), new ConfigSyncPacket(configJson));
         });
 
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new CropConfigs());
+    }
+    
+    public static Identifier identifier(String path) {
+        return Identifier.of(MOD_ID, path);
     }
 
     public static void setMeltable(BlockPos blockPos) {
@@ -144,11 +146,11 @@ public class FabricSeasons implements ModInitializer {
     }
 
     public static PlacedMeltablesState getPlacedMeltablesState(ServerWorld world) {
-        return world.getPersistentStateManager().getOrCreate(PlacedMeltablesState::createFromNbt, PlacedMeltablesState::new, "seasons_placed_meltables");
+        return world.getPersistentStateManager().getOrCreate(PlacedMeltablesState.getPersistentStateType(), "seasons_placed_meltables");
     }
 
     public static ReplacedMeltablesState getReplacedMeltablesState(ServerWorld world) {
-        return world.getPersistentStateManager().getOrCreate(ReplacedMeltablesState::createFromNbt, ReplacedMeltablesState::new, "seasons_replaced_meltables");
+        return world.getPersistentStateManager().getOrCreate(ReplacedMeltablesState.getPersistentStateType(), "seasons_replaced_meltables");
     }
 
     public static long getTimeToNextSeason(World world) {
@@ -337,8 +339,8 @@ public class FabricSeasons implements ModInitializer {
         return season;
     }
 
-    private static final TagKey<Biome> IGNORED_CATEGORIES_TAG = TagKey.of(RegistryKeys.BIOME, new Identifier(FabricSeasons.MOD_ID, "ignored"));
-    private static final TagKey<Biome> JUNGLE_LIKE_TAG = TagKey.of(RegistryKeys.BIOME, new Identifier(FabricSeasons.MOD_ID, "jungle_like"));
+    private static final TagKey<Biome> IGNORED_CATEGORIES_TAG = TagKey.of(RegistryKeys.BIOME, FabricSeasons.identifier("ignored"));
+    private static final TagKey<Biome> JUNGLE_LIKE_TAG = TagKey.of(RegistryKeys.BIOME, FabricSeasons.identifier("jungle_like"));
 
     public static void injectBiomeTemperature(RegistryEntry<Biome> entry, World world) {
         if(entry.isIn(IGNORED_CATEGORIES_TAG))

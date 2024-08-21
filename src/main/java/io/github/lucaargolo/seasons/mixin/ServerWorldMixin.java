@@ -8,13 +8,11 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,23 +30,23 @@ public abstract class ServerWorldMixin extends World implements StructureWorldAc
         super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
     }
 
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z", ordinal = 0), method = "tickChunk", locals = LocalCapture.CAPTURE_FAILSOFT)
-    public void setMeltableIce(WorldChunk chunk, int randomTickSpeed, CallbackInfo ci, ChunkPos chunkPos, boolean bl, int i, int j, Profiler profiler, BlockPos blockPos, BlockPos blockPos2, Biome biome) {
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z", ordinal = 0), method = "tickIceAndSnow(Lnet/minecraft/util/math/BlockPos;)V", locals = LocalCapture.CAPTURE_FAILSOFT)
+    public void setMeltableIce(BlockPos pos, CallbackInfo ci, BlockPos blockPos, BlockPos blockPos2, Biome biome) {
         FabricSeasons.setMeltable(blockPos2);
     }
 
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z", ordinal = 1), method = "tickChunk", locals = LocalCapture.CAPTURE_FAILSOFT)
-    public void setMeltableLayeredSnow(WorldChunk chunk, int randomTickSpeed, CallbackInfo ci, ChunkPos chunkPos, boolean bl, int i, int j, Profiler profiler, BlockPos blockPos, BlockPos blockPos2, Biome biome) {
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z", ordinal = 1), method = "tickIceAndSnow(Lnet/minecraft/util/math/BlockPos;)V", locals = LocalCapture.CAPTURE_FAILSOFT)
+    public void setMeltableLayeredSnow(BlockPos pos, CallbackInfo ci, BlockPos blockPos, BlockPos blockPos2, Biome biome, int i, BlockState blockState, int j, BlockState blockState2) {
         FabricSeasons.setMeltable(blockPos);
     }
 
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z", ordinal = 2), method = "tickChunk", locals = LocalCapture.CAPTURE_FAILSOFT)
-    public void setMeltableSnow(WorldChunk chunk, int randomTickSpeed, CallbackInfo ci, ChunkPos chunkPos, boolean bl, int i, int j, Profiler profiler, BlockPos blockPos, BlockPos blockPos2, Biome biome) {
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z", ordinal = 2), method = "tickIceAndSnow(Lnet/minecraft/util/math/BlockPos;)V", locals = LocalCapture.CAPTURE_FAILSOFT)
+    public void setMeltableSnow(BlockPos pos, CallbackInfo ci, BlockPos blockPos, BlockPos blockPos2, Biome biome) {
         FabricSeasons.setMeltable(blockPos);
     }
 
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;precipitationTick(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/biome/Biome$Precipitation;)V"), method = "tickChunk", locals = LocalCapture.CAPTURE_FAILSOFT)
-    public void setReplacedMeltable(WorldChunk chunk, int randomTickSpeed, CallbackInfo ci, ChunkPos chunkPos, boolean bl, int i, int j, Profiler profiler, BlockPos blockPos, BlockPos blockPos2, Biome biome, int k, Biome.Precipitation precipitation, BlockState blockState3) {
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;precipitationTick(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/biome/Biome$Precipitation;)V"), method = "tickIceAndSnow(Lnet/minecraft/util/math/BlockPos;)V", locals = LocalCapture.CAPTURE_FAILSOFT)
+    public void setReplacedMeltable(BlockPos pos, CallbackInfo ci, BlockPos blockPos, BlockPos blockPos2, Biome biome, int i, Biome.Precipitation precipitation, BlockState blockState3) {
         Meltable.replaceBlockOnSnow((ServerWorld) (Object) this, blockPos, biome);
     }
 
