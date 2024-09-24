@@ -41,6 +41,12 @@ public class ModConfig {
             "terralith:glacial_chasm"
     );
 
+    private List<String> biomeForceSnowInWinterList = List.of(
+            "minecraft:plains",
+            "minecraft:sunflower_plains",
+            "minecraft:stony_peaks"
+    );
+
     private boolean isSeasonTiedWithSystemTime = false;
     
     private boolean isInNorthHemisphere = true;
@@ -77,6 +83,10 @@ public class ModConfig {
 
     public boolean doTemperatureChanges(Identifier biomeId) {
         return doTemperatureChanges && !biomeDenylist.contains(biomeId.toString());
+    }
+
+    public boolean isSnowForcedInBiome(Identifier biomeId) {
+        return biomeForceSnowInWinterList.contains(biomeId.toString());
     }
 
     public boolean shouldSnowyBiomesMeltInSummer() {
