@@ -404,7 +404,7 @@ public class FabricSeasons implements ModInitializer {
             return switch (season) {
                 case SPRING -> new Pair<>(hasPrecipitation, temp - 0.34f);
                 case SUMMER -> new Pair<>(hasPrecipitation, temp + 0.4f);
-                case WINTER -> new Pair<>(hasPrecipitation, temp - 0.64f);
+                case WINTER -> new Pair<>(true, temp - 0.64f);
                 default -> new Pair<>(hasPrecipitation, temp);
             };
         }
