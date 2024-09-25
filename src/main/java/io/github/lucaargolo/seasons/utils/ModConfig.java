@@ -38,7 +38,16 @@ public class ModConfig {
     private boolean shouldIceNearWaterMelt = false;
 
     private List<String> biomeDenylist = List.of(
-            "terralith:glacial_chasm"
+            "terralith:glacial_chasm",
+            "minecraft:frozen_ocean",
+            "minecraft:deep_frozen_ocean",
+            "minecraft:cold_ocean",
+            "minecraft:deep_cold_ocean",
+            "minecraft:ocean",
+            "minecraft:deep_ocean",
+            "minecraft:lukewarm_ocean",
+            "minecraft:deep_lukewarm_ocean",
+            "minecraft:warm_ocean"
     );
 
     private List<String> biomeForceSnowInWinterList = List.of(
