@@ -39,6 +39,8 @@ public class ModConfig {
 
     private boolean shouldIceNearWaterMelt = false;
 
+    private boolean shouldIceBreakSugarCane = false;
+
     private List<String> biomeDenylist = List.of(
             "terralith:glacial_chasm"
     );
@@ -91,6 +93,10 @@ public class ModConfig {
 
     public boolean shouldIceNearWaterMelt() {
         return shouldIceNearWaterMelt;
+    }
+
+    public boolean shouldIceBreakSugarCane() {
+        return shouldIceBreakSugarCane;
     }
 
     public int getSpringLength() {
