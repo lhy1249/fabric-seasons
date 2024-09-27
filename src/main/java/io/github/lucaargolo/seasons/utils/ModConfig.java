@@ -33,12 +33,31 @@ public class ModConfig {
     
     private boolean doTemperatureChanges = true;
 
+    private boolean shouldSnowReplaceVegetation = true;
+
     private boolean shouldSnowyBiomesMeltInSummer = true;
 
     private boolean shouldIceNearWaterMelt = false;
 
+    private boolean shouldIceBreakSugarCane = false;
+
     private List<String> biomeDenylist = List.of(
-            "terralith:glacial_chasm"
+            "terralith:glacial_chasm",
+            "minecraft:frozen_ocean",
+            "minecraft:deep_frozen_ocean",
+            "minecraft:cold_ocean",
+            "minecraft:deep_cold_ocean",
+            "minecraft:ocean",
+            "minecraft:deep_ocean",
+            "minecraft:lukewarm_ocean",
+            "minecraft:deep_lukewarm_ocean",
+            "minecraft:warm_ocean"
+    );
+
+    private List<String> biomeForceSnowInWinterList = List.of(
+            "minecraft:plains",
+            "minecraft:sunflower_plains",
+            "minecraft:stony_peaks"
     );
 
     private boolean isSeasonTiedWithSystemTime = false;
@@ -79,12 +98,24 @@ public class ModConfig {
         return doTemperatureChanges && !biomeDenylist.contains(biomeId.toString());
     }
 
+    public boolean isSnowForcedInBiome(Identifier biomeId) {
+        return biomeForceSnowInWinterList.contains(biomeId.toString());
+    }
+
+    public boolean shouldSnowReplaceVegetation() {
+        return shouldSnowReplaceVegetation;
+    }
+
     public boolean shouldSnowyBiomesMeltInSummer() {
         return shouldSnowyBiomesMeltInSummer;
     }
 
     public boolean shouldIceNearWaterMelt() {
         return shouldIceNearWaterMelt;
+    }
+
+    public boolean shouldIceBreakSugarCane() {
+        return shouldIceBreakSugarCane;
     }
 
     public int getSpringLength() {
