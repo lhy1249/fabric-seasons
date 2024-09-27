@@ -1,16 +1,13 @@
 {
   "tooltip.seasons.spring": "Spring",
   "tooltip.seasons.summer": "Summer",
-  "tooltip.seasons.fall": "Fall",
+  "tooltip.seasons.fall": "Autumn",
   "tooltip.seasons.winter": "Winter",
   "tooltip.seasons.faster_grow": "Grows faster this season",
   "tooltip.seasons.normal_grow": "Grows normally this season",
   "tooltip.seasons.slowed_grow": "Grows slower this season",
   "tooltip.seasons.not_grow": "Won't grow this season",
   "tooltip.seasons.show_more": "Press %s to show more",
-  "tooltip.seasons.season_delimitator": ": ",
-  "tooltip.seasons.season_speed": "%s%s%s%% speed",
-  "tooltip.seasons.combined_grow": "%s (%s%%)",
 
   "chat.seasons.mod_installed": "Looks like you have %s installed!",
   "chat.seasons.compatibility": "Get full Fabric Seasons compatibility installing the addon.",

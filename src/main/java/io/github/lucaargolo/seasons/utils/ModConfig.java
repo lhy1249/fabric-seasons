@@ -33,9 +33,13 @@ public class ModConfig {
     
     private boolean doTemperatureChanges = true;
 
+    private boolean shouldSnowReplaceVegetation = true;
+
     private boolean shouldSnowyBiomesMeltInSummer = true;
 
     private boolean shouldIceNearWaterMelt = false;
+
+    private boolean shouldIceBreakSugarCane = false;
 
     private List<String> biomeDenylist = List.of(
             "terralith:glacial_chasm",
@@ -96,6 +100,9 @@ public class ModConfig {
 
     public boolean isSnowForcedInBiome(Identifier biomeId) {
         return biomeForceSnowInWinterList.contains(biomeId.toString());
+
+    public boolean shouldSnowReplaceVegetation() {
+        return shouldSnowReplaceVegetation;
     }
 
     public boolean shouldSnowyBiomesMeltInSummer() {
@@ -104,6 +111,10 @@ public class ModConfig {
 
     public boolean shouldIceNearWaterMelt() {
         return shouldIceNearWaterMelt;
+    }
+
+    public boolean shouldIceBreakSugarCane() {
+        return shouldIceBreakSugarCane;
     }
 
     public int getSpringLength() {
