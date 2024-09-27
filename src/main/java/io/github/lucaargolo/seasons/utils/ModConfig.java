@@ -100,6 +100,7 @@ public class ModConfig {
 
     public boolean isSnowForcedInBiome(Identifier biomeId) {
         return biomeForceSnowInWinterList.contains(biomeId.toString());
+    }
 
     public boolean shouldSnowReplaceVegetation() {
         return shouldSnowReplaceVegetation;
