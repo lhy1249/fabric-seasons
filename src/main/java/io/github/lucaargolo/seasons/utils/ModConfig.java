@@ -61,8 +61,8 @@ public class ModConfig {
     );
 
     private boolean isSeasonTiedWithSystemTime = false;
-    
     private boolean isInNorthHemisphere = true;
+    private boolean isFallAndSpringReversed = false;
 
     private boolean isSeasonMessingCrops = true;
     private boolean isSeasonMessingBonemeal = false;
@@ -161,6 +161,10 @@ public class ModConfig {
 
     public boolean isInNorthHemisphere() {
         return isInNorthHemisphere;
+    }
+
+    public boolean isFallAndSpringReversed() {
+        return isFallAndSpringReversed;
     }
 
     public boolean isDebugCommandEnabled() { return debugCommandEnabled; }
