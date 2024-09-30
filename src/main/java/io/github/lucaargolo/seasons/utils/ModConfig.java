@@ -22,6 +22,8 @@ public class ModConfig {
 
     }
 
+    private Season startingSeason = Season.SPRING;
+
     private SeasonLength seasonLength = new SeasonLength();
 
     private SeasonLock seasonLock = new SeasonLock();
@@ -149,6 +151,20 @@ public class ModConfig {
 
     public Season getLockedSeason() {
         return seasonLock.lockedSeason;
+    }
+
+    public Season getStartingSeason() {
+        return startingSeason;
+    }
+
+    public boolean isValidStartingSeason() {
+        return switch(startingSeason) {
+            case SPRING -> true;
+            case SUMMER -> true;
+            case FALL -> true;
+            case WINTER -> true;
+            default -> false;
+        };
     }
 
     public boolean isValidInDimension(RegistryKey<World> dimension) {
