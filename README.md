@@ -20,7 +20,7 @@ For a complete list of features please check the mods [official page](https://ww
 
 ## Description
 
-Fabric Seasons adds four seasons to Minecraft, each lasting 28 in-game days (configurable). The current season is defined by the world time (using `/time set 0` will reset to day 1 of Spring). Each season has its own changes. Spring will match the original colors of Minecraft and Fall will match the original biome behaviors.
+Fabric Seasons adds four seasons to Minecraft, each lasting 28 in-game days (configurable). The current season is defined by the world time (using `/time set 0` will reset to day 1 of Spring). Each season has its own changes. Spring will match the original biome colors and biome behaviors.
 
 The mod has 2 components:
 
