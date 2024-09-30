@@ -68,7 +68,7 @@ Fabric Seasons can be configured in your instance's `config` folder. The file is
 | isSeasonMessingBonemeal | Flag that determines if the seasons should change the default bonemeal behavior | false
 | doCropsGrowNormallyUnderground | Flag that determines if crops underground should have default behavior. Underground is considered to be sky light level of 0. | false
 | doAnimalsBreedInWinter | Flag that determines if animals should be able to breed during the winter | true
-| notifyCompat | ??? | true
+| notifyCompat | Flag that determines if a message should be sent when a mod has a compatibility addon and you do not have it installed | true
 | debugCommandEnabled | Only useful in development environments | false
 
 ## Crop Growth
