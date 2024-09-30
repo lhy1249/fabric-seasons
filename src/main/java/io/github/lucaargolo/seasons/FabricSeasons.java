@@ -164,7 +164,7 @@ public class FabricSeasons implements ModInitializer {
 
             Season currentSeason = getCurrentSeason(world);
 
-            int[] seasonLengthArray = new int[]{springLength, summerLength,  fallLength, winterLength};
+            long[] seasonLengthArray = new long[]{springLength, summerLength,  fallLength, winterLength};
             Season[] seasonArray = new Season[]{Season.SPRING, Season.SUMMER,  Season.FALL, Season.WINTER};
 
             int startSeasonIndex = switch (CONFIG.getStartingSeason()) {
@@ -225,7 +225,7 @@ public class FabricSeasons implements ModInitializer {
             }else if(CONFIG.isSeasonTiedWithSystemTime()) {
                 return getCurrentSystemSeason();
             }else if(CONFIG.isValidStartingSeason() && springLength >= 0 && summerLength >= 0 && fallLength >= 0 && winterLength >= 0) {
-                int[] seasonLengthArray = new int[]{springLength, summerLength, fallLength, winterLength};
+                long[] seasonLengthArray = new long[]{springLength, summerLength, fallLength, winterLength};
                 Season[] seasonArray = new Season[]{Season.SPRING, Season.SUMMER,  Season.FALL, Season.WINTER};
 
                 int startSeasonIndex = switch (CONFIG.getStartingSeason()) {
