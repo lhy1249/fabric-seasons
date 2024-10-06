@@ -152,38 +152,50 @@ public class FabricSeasons implements ModInitializer {
     }
 
     public static long getTimeToNextSeason(World world) {
-        return getTimeToNextSeason(world, false);
-    }
-
-    public static long getTimeToNextSeason(World world, boolean ignoreDimension) {
+        long springLength = CONFIG.getSpringLength();
+        long summerLength = CONFIG.getSummerLength();
+        long fallLength = CONFIG.getFallLength();
+        long winterLength = CONFIG.getWinterLength();
         RegistryKey<World> dimension = world.getRegistryKey();
-        if ((ignoreDimension || CONFIG.isValidInDimension(dimension)) && !CONFIG.isSeasonLocked()) {
+        if (CONFIG.isValidInDimension(dimension) && !CONFIG.isSeasonLocked()) {
             if(CONFIG.isSeasonTiedWithSystemTime()) {
                 return getTimeToNextSystemSeason() * 24000;
             }
-            long springTime = world.getTimeOfDay() % CONFIG.getYearLength();
-            long summerTime = springTime - CONFIG.getSpringLength();
-            long fallTime = summerTime - CONFIG.getSummerLength();
-            long winterTime = fallTime - CONFIG.getFallLength();
 
-            long seasonTime = switch (getCurrentSeason(world)) {
-                case SPRING -> springTime;
-                case SUMMER -> summerTime;
-                case FALL -> fallTime;
-                case WINTER -> winterTime;
+            Season currentSeason = getCurrentSeason(world);
+
+            long[] seasonLengthArray = new long[]{springLength, summerLength,  fallLength, winterLength};
+            Season[] seasonArray = new Season[]{Season.SPRING, Season.SUMMER,  Season.FALL, Season.WINTER};
+
+            int startSeasonIndex = switch (CONFIG.getStartingSeason()) {
+                case SPRING -> 0;
+                case SUMMER -> 1;
+                case FALL -> 2;
+                case WINTER -> 3;
             };
-            return getCurrentSeason(world).getSeasonLength() - seasonTime;
+
+            long season1LimitYTD = seasonLengthArray[startSeasonIndex];
+            long season2LimitYTD = season1LimitYTD + seasonLengthArray[(startSeasonIndex + 1) % 4];
+            long season3LimitYTD = season2LimitYTD + seasonLengthArray[(startSeasonIndex + 2) % 4];
+            long yearLength = season3LimitYTD + seasonLengthArray[(startSeasonIndex + 3) % 4];
+            long timeOfYear = world.getTimeOfDay() % yearLength;
+
+            if(currentSeason == seasonArray[startSeasonIndex]) {
+                return season1LimitYTD - timeOfYear;
+            } else if(currentSeason == seasonArray[(startSeasonIndex + 1) % 4]) {
+                return season2LimitYTD - timeOfYear;
+            } else if (currentSeason == seasonArray[(startSeasonIndex + 2) % 4]) {
+                return season3LimitYTD - timeOfYear;
+            } else if (currentSeason == seasonArray[(startSeasonIndex + 3) % 4]) {
+                return yearLength - timeOfYear;
+            }
         }
         return Long.MAX_VALUE;
     }
 
-    public static Season getNextSeason(World world) {
-        return getNextSeason(world, false);
-    }
-
-    public static Season getNextSeason(World world, boolean ignoreDimension) {
+    public static Season getNextSeason(World world, Season currentSeason) {
         RegistryKey<World> dimension = world.getRegistryKey();
-        if (ignoreDimension || CONFIG.isValidInDimension(dimension)) {
+        if (CONFIG.isValidInDimension(dimension)) {
             if(CONFIG.isSeasonLocked()) {
                 return CONFIG.getLockedSeason();
             }
@@ -191,65 +203,53 @@ public class FabricSeasons implements ModInitializer {
                 return getCurrentSystemSeason().getNext();
             }
 
-            long springTime = world.getTimeOfDay() % CONFIG.getYearLength();
-            long summerTime = springTime - CONFIG.getSpringLength();
-            long fallTime = summerTime - CONFIG.getSummerLength();
-            long winterTime = fallTime - CONFIG.getFallLength();
-
-            long seasonTime = switch (getCurrentSeason(world)) {
-                case SPRING -> CONFIG.getSpringLength() - springTime;
-                case SUMMER -> CONFIG.getSummerLength() - summerTime;
-                case FALL -> CONFIG.getFallLength() - fallTime;
-                case WINTER -> CONFIG.getWinterLength() - winterTime;
+            return switch (getCurrentSeason(world)) {
+                case SPRING -> Season.SUMMER;
+                case SUMMER -> Season.FALL;
+                case FALL -> Season.WINTER;
+                case WINTER -> Season.SPRING;
             };
-
-            long worldTime = world.getTimeOfDay() + seasonTime;
-
-            springTime = worldTime % CONFIG.getYearLength();
-            summerTime = springTime - CONFIG.getSpringLength();
-            fallTime = summerTime - CONFIG.getSummerLength();
-            winterTime = fallTime - CONFIG.getFallLength();
-
-            if(winterTime >= 0 && CONFIG.getWinterLength() > 0) {
-                return Season.WINTER;
-            }else if(fallTime >= 0 && CONFIG.getFallLength() > 0) {
-                return Season.FALL;
-            }else if(summerTime >= 0 && CONFIG.getSummerLength() > 0) {
-                return Season.SUMMER;
-            }else if(springTime >= 0 && CONFIG.getSpringLength() > 0) {
-                return Season.SPRING;
-            }
         }
         return Season.SPRING;
     }
 
     public static Season getCurrentSeason(World world) {
-        return getCurrentSeason(world, false);
-    }
-
-    public static Season getCurrentSeason(World world, boolean ignoreDimension) {
+        long springLength = CONFIG.getSpringLength();
+        long summerLength = CONFIG.getSummerLength();
+        long fallLength = CONFIG.getFallLength();
+        long winterLength = CONFIG.getWinterLength();
         RegistryKey<World> dimension = world.getRegistryKey();
-        if (ignoreDimension || CONFIG.isValidInDimension(dimension)) {
+        if (CONFIG.isValidInDimension(dimension)) {
             if(CONFIG.isSeasonLocked()) {
                 return CONFIG.getLockedSeason();
-            }
-            if(CONFIG.isSeasonTiedWithSystemTime()) {
+            }else if(CONFIG.isSeasonTiedWithSystemTime()) {
                 return getCurrentSystemSeason();
-            }
+            }else if(CONFIG.isValidStartingSeason() && springLength >= 0 && summerLength >= 0 && fallLength >= 0 && winterLength >= 0) {
+                long[] seasonLengthArray = new long[]{springLength, summerLength, fallLength, winterLength};
+                Season[] seasonArray = new Season[]{Season.SPRING, Season.SUMMER,  Season.FALL, Season.WINTER};
 
-            long springTime = world.getTimeOfDay() % CONFIG.getYearLength();
-            long summerTime = springTime - CONFIG.getSpringLength();
-            long fallTime = summerTime - CONFIG.getSummerLength();
-            long winterTime = fallTime - CONFIG.getFallLength();
+                int startSeasonIndex = switch (CONFIG.getStartingSeason()) {
+                    case SPRING -> 0;
+                    case SUMMER -> 1;
+                    case FALL -> 2;
+                    case WINTER -> 3;
+                };
 
-            if(winterTime >= 0 && CONFIG.getWinterLength() > 0) {
-                return Season.WINTER;
-            }else if(fallTime >= 0 && CONFIG.getFallLength() > 0) {
-                return Season.FALL;
-            }else if(summerTime >= 0 && CONFIG.getSummerLength() > 0) {
-                return Season.SUMMER;
-            }else if(springTime >= 0 && CONFIG.getSpringLength() > 0) {
-                return Season.SPRING;
+                long season1LimitYTD = seasonLengthArray[startSeasonIndex];
+                long season2LimitYTD = season1LimitYTD + seasonLengthArray[(startSeasonIndex + 1) % 4];
+                long season3LimitYTD = season2LimitYTD + seasonLengthArray[(startSeasonIndex + 2) % 4];
+                long yearLength = season3LimitYTD + seasonLengthArray[(startSeasonIndex + 3) % 4];
+                long timeOfYear = world.getTimeOfDay() % yearLength;
+
+                if(timeOfYear < season1LimitYTD) {
+                    return seasonArray[startSeasonIndex];
+                } else if(timeOfYear < season2LimitYTD) {
+                    return seasonArray[(startSeasonIndex + 1) % 4];
+                } else if (timeOfYear < season3LimitYTD) {
+                    return seasonArray[(startSeasonIndex + 2) % 4];
+                } else if (timeOfYear < yearLength) {
+                    return seasonArray[(startSeasonIndex + 3) % 4];
+                }
             }
         }
         return Season.SPRING;
