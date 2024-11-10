@@ -6,7 +6,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.IceBlock;
-import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
@@ -32,17 +31,6 @@ public abstract class IceBlockMixin extends Block implements Meltable {
         if (this == Blocks.ICE && world.getLightLevel(LightType.SKY, pos) > 0 && world.getBiome(pos).value().getTemperature(pos) >= 0.15F) {
             if(!FabricSeasons.getPlacedMeltablesState(world).isManuallyPlaced(pos)) {
                 this.melt(state, world, pos);
-            }else if(FabricSeasons.CONFIG.shouldIceNearWaterMelt()) {
-                boolean nearWater = false;
-                for(BlockPos nearPos : BlockPos.iterateOutwards(pos, 1, 1, 1)) {
-                    if(world.getFluidState(nearPos).isIn(FluidTags.WATER)) {
-                        nearWater = true;
-                        break;
-                    }
-                }
-                if(nearWater) {
-                    this.melt(state, world, pos);
-                }
             }
         }
     }

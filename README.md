@@ -56,16 +56,11 @@ Fabric Seasons can be configured in your instance's `config` folder. The file is
 | dimensionAllowList | The list of dimensions to allow seasons. This may be useful for multiplayer. A valid value would be one in the format of `"<namespace>:<world_name>"`. | ["minecraft:overworld"]
 | doTemperatureChanges | Flag that modifies precipitation and freezing on biomes. **Setting to false essentially disables any biome behavior or aesthetic changes year round.**  | true
 | shouldSnowyBiomesMeltInSummer | Flag that determines if "Usually Freezing Biomes" should melt during Summer | true
-| shouldIceNearWaterMelt | When true, ice will melt in an ice-free biome regardless of being placed by a player when it is beside a water source or flowing water. When false, default ice behavior occurs. | false
 | biomeDenyList | The list of biomes that keep it's original temperature and freezing behavior year-round. A valid value would be one in the format of `"<namespace>:<biome_name>"`. | ["terralith:glacial_chasm", "minecraft:frozen_ocean", "minecraft:deep_frozen_ocean", "minecraft:ocean", "minecraft:deep_ocean", "minecraft:cold_ocean", "minecraft:deep_cold_ocean", "minecraft:lukewarm_ocean", "minecraft:deep_lukewarm_ocean", "minecraft:warm_ocean"]
 | biomeForceSnowInWinterList | The list of biomes to force freezing during the winter season. A valid value would be one in the format of `"<namespace>:<biome_name>"`. | ["minecraft:plains", "minecraft:sunflower_plains", "minecraft:stony_peaks"]
 | isSeasonTiedWithSystemTime | Flag that determines if the seasons should be synced to real world seasonal cycles | false
 | isInNorthHemisphere | Only used if `isSeasonTiedWithSystemTime` is set to true. Determines if the player is situated in the North Hemisphere to properly calculate the seasons. | true
 | isFallAndSpringReversed | By default, there are more biomes that snow over during Fall. Setting this to true will reverse it, so that more biomes snow over in the Spring compared to Fall. | false
-| isSeasonMessingCrops | Flag that determines if the seasons should change the default growth rate | true
-| isSeasonMessingBonemeal | Flag that determines if the seasons should change the default bonemeal behavior | false
-| doCropsGrowNormallyUnderground | Flag that determines if crops underground should have default behavior. Underground is considered to be sky light level of 0. | false
-| doAnimalsBreedInWinter | Flag that determines if animals should be able to breed during the winter | true
 | notifyCompat | Flag that determines if a message should be sent when a mod has a compatibility addon and you do not have it installed | true
 | debugCommandEnabled | Only useful in development environments | false
 

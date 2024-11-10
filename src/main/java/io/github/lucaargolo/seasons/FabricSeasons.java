@@ -6,14 +6,11 @@ import com.google.gson.JsonParser;
 import io.github.lucaargolo.seasons.commands.SeasonCommand;
 import io.github.lucaargolo.seasons.mixed.BiomeMixed;
 import io.github.lucaargolo.seasons.payload.ConfigSyncPacket;
-import io.github.lucaargolo.seasons.payload.UpdateCropsPaycket;
-import io.github.lucaargolo.seasons.resources.CropConfigs;
 import io.github.lucaargolo.seasons.utils.GreenhouseCache;
 import io.github.lucaargolo.seasons.utils.ModConfig;
 import io.github.lucaargolo.seasons.utils.PlacedMeltablesState;
 import io.github.lucaargolo.seasons.utils.ReplacedMeltablesState;
 import io.github.lucaargolo.seasons.utils.Season;
-import io.github.lucaargolo.seasons.utils.SeasonalFertilizable;
 import it.unimi.dsi.fastutil.longs.LongArraySet;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -100,23 +97,6 @@ public class FabricSeasons implements ModInitializer {
 
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated, ignored) -> SeasonCommand.register(dispatcher));
 
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-            SEEDS_MAP.clear();
-            Registries.ITEM.forEach(item -> {
-                if (item instanceof BlockItem) {
-                    Block block = ((BlockItem) item).getBlock();
-                    if (block instanceof SeasonalFertilizable) {
-                        FabricSeasons.SEEDS_MAP.put(item, ((BlockItem) item).getBlock());
-                    }
-                }
-            });
-        });
-
-        PayloadTypeRegistry.playS2C().register(UpdateCropsPaycket.ID, UpdateCropsPaycket.CODEC);
-        ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> {
-            ServerPlayNetworking.send(player, UpdateCropsPaycket.fromConfig(CropConfigs.getDefaultCropConfig(), CropConfigs.getCropConfigMap()));
-        });
-
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             GreenhouseCache.tick(server);
             temporaryMeltableCache.clear();
@@ -130,7 +110,6 @@ public class FabricSeasons implements ModInitializer {
             ServerPlayNetworking.send(context.player(), new ConfigSyncPacket(configJson));
         });
 
-        ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new CropConfigs());
     }
 
     public static Identifier identifier(String path) {

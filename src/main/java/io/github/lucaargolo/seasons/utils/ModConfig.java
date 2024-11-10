@@ -15,10 +15,10 @@ public class ModConfig {
     }
 
     private static class SeasonLength {
-        private int springLength = 672000;
-        private int summerLength = 672000;
-        private int fallLength = 672000;
-        private int winterLength = 672000;
+        private int springLength = 672000 * 3;
+        private int summerLength = 672000 * 3;
+        private int fallLength = 672000 * 3;
+        private int winterLength = 672000 * 3;
 
     }
 
@@ -38,8 +38,6 @@ public class ModConfig {
     private boolean shouldSnowReplaceVegetation = true;
 
     private boolean shouldSnowyBiomesMeltInSummer = true;
-
-    private boolean shouldIceNearWaterMelt = false;
 
     private boolean shouldIceBreakSugarCane = false;
 
@@ -65,35 +63,12 @@ public class ModConfig {
     private boolean isSeasonTiedWithSystemTime = false;
     private boolean isInNorthHemisphere = true;
     private boolean isFallAndSpringReversed = false;
-
-    private boolean isSeasonMessingCrops = true;
-    private boolean isSeasonMessingBonemeal = false;
-    private boolean doCropsGrowsNormallyUnderground = false;
-
-    private boolean doAnimalsBreedInWinter = true;
-
     private boolean notifyCompat = true;
 
     private boolean debugCommandEnabled = false;
 
     public boolean shouldNotifyCompat() {
         return notifyCompat;
-    }
-
-    public boolean doAnimalsBreedInWinter() {
-        return doAnimalsBreedInWinter;
-    }
-
-    public boolean isSeasonMessingCrops() {
-        return isSeasonMessingCrops;
-    }
-
-    public boolean isSeasonMessingBonemeal() {
-        return isSeasonMessingBonemeal;
-    }
-
-    public boolean doCropsGrowsNormallyUnderground() {
-        return doCropsGrowsNormallyUnderground;
     }
 
     public boolean doTemperatureChanges(Identifier biomeId) {
@@ -110,10 +85,6 @@ public class ModConfig {
 
     public boolean shouldSnowyBiomesMeltInSummer() {
         return shouldSnowyBiomesMeltInSummer;
-    }
-
-    public boolean shouldIceNearWaterMelt() {
-        return shouldIceNearWaterMelt;
     }
 
     public boolean shouldIceBreakSugarCane() {

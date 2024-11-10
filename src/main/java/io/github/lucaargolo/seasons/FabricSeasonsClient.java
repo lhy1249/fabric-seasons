@@ -1,16 +1,11 @@
 package io.github.lucaargolo.seasons;
 
-import io.github.lucaargolo.seasons.commands.SeasonDebugCommand;
 import io.github.lucaargolo.seasons.payload.ConfigSyncPacket;
-import io.github.lucaargolo.seasons.payload.UpdateCropsPaycket;
-import io.github.lucaargolo.seasons.resources.CropConfigs;
 import io.github.lucaargolo.seasons.resources.FoliageSeasonColors;
 import io.github.lucaargolo.seasons.resources.GrassSeasonColors;
 import io.github.lucaargolo.seasons.utils.CompatWarnState;
-import io.github.lucaargolo.seasons.utils.CropConfig;
 import io.github.lucaargolo.seasons.utils.ModConfig;
 import io.github.lucaargolo.seasons.utils.Season;
-import io.github.lucaargolo.seasons.utils.SeasonalFertilizable;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -52,18 +47,6 @@ public class FabricSeasonsClient implements ClientModInitializer {
         ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new GrassSeasonColors());
         ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new FoliageSeasonColors());
         
-        ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
-            FabricSeasons.SEEDS_MAP.clear();
-            Registries.ITEM.forEach(item -> {
-                if (item instanceof BlockItem) {
-                    Block block = ((BlockItem) item).getBlock();
-                    if (block instanceof SeasonalFertilizable) {
-                        FabricSeasons.SEEDS_MAP.put(item, ((BlockItem) item).getBlock());
-                    }
-                }
-            });
-        });
-        
         ClientTickEvents.END_WORLD_TICK.register((clientWorld) -> {
             if (FabricSeasons.getCurrentSeason(clientWorld) != lastRenderedSeasonMap.get(clientWorld.getRegistryKey())) {
                 lastRenderedSeasonMap.put(clientWorld.getRegistryKey(), FabricSeasons.getCurrentSeason(clientWorld));
@@ -80,15 +63,6 @@ public class FabricSeasonsClient implements ClientModInitializer {
             });
         });
         
-        ClientPlayNetworking.registerGlobalReceiver(UpdateCropsPaycket.ID, (payload, context) -> {
-            CropConfig receivedConfig = payload.cropConfig();
-            HashMap<Identifier, CropConfig> receivedMap = payload.cropConfigMap();
-            
-            context.client().execute(() -> {
-                CropConfigs.receiveConfig(receivedConfig, receivedMap);
-                FabricSeasons.LOGGER.info("[" + MOD_NAME + "] Received dedicated server crops.");
-            });
-        });
         
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             if (CONFIG.shouldNotifyCompat()) {
@@ -99,19 +73,6 @@ public class FabricSeasonsClient implements ClientModInitializer {
                 ClientPlayNetworking.send(new ConfigSyncPacket("request"));
             }
         });
-        
-        ClientPlayConnectionEvents.DISCONNECT.register(((handler, client) -> {
-            CropConfigs.clear();
-            if (isServerConfig && clientConfig != null) {
-                FabricSeasons.LOGGER.info("[" + MOD_NAME + "] Left dedicated server, restoring config.");
-                FabricSeasons.CONFIG = clientConfig;
-                isServerConfig = false;
-            }
-        }));
-        
-        if (FabricLoader.getInstance().isDevelopmentEnvironment() || CONFIG.isDebugCommandEnabled()) {
-            ClientCommandRegistrationCallback.EVENT.register((SeasonDebugCommand::register));
-        }
         
         FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent((container) -> {
             ResourceManagerHelper.registerBuiltinResourcePack(FabricSeasons.identifier("seasonal_lush_caves"), container, Text.literal("Seasonal Lush Caves"), ResourcePackActivationType.DEFAULT_ENABLED);

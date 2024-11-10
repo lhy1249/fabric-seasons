@@ -5,22 +5,18 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "AbstractBlockMixin",
-    "AnimalEntityMixin",
     "BiomeMixin",
     "FreezeTopLayerFeatureMixin",
     "IceBlockMixin",
     "LakeFeatureMixin",
     "ServerWorldMixin",
     "SnowBlockMixin",
-    "SugarCaneBlockMixin",
-    "VanillaFertilizablesMixin",
     "WorldViewMixin"
   ],
   "client": [
     "BiomeColorsMixin",
     "BlockColorsMixin",
     "BlockModelsMixin",
-    "ItemMixin",
     "ItemModelsMixin",
     "JsonUnbakedModelMixin",
     "ModelLoaderMixin",
