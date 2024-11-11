@@ -17,6 +17,7 @@
 
 ## Description
 
+A minimal version of Fabric Seasons that only controls the temperature.
 Fabric Seasons adds four seasons to Minecraft, each lasting 28 in-game days (configurable). The current season is defined by the world time (using `/time set 0` will reset to day 1 of Spring). Each season has its own changes. Spring will match the original biome colors and biome behaviors.
 
 The mod has 2 components:
@@ -126,28 +127,7 @@ Fabric Seasons can be configured in your instance's `config` folder. The file is
 | isSeasonTiedWithSystemTime | Flag that determines if the seasons should be synced to real world seasonal cycles | false
 | isInNorthHemisphere | Only used if `isSeasonTiedWithSystemTime` is set to true. Determines if the player is situated in the North Hemisphere to properly calculate the seasons. | true
 | isFallAndSpringReversed | By default, there are more biomes that snow over during Fall. Setting this to true will reverse it, so that more biomes snow over in the Spring compared to Fall. | false
-| isSeasonMessingCrops | Flag that determines if the seasons should change the default growth rate | true
-| isSeasonMessingBonemeal | Flag that determines if the seasons should change the default bonemeal behavior | false
-| doCropsGrowNormallyUnderground | Flag that determines if crops underground should have default behavior. Underground is considered to be sky light level of 0. | false
-| doAnimalsBreedInWinter | Flag that determines if animals should be able to breed during the winter | true
 | notifyCompat | Flag that determines if a message should be sent when a mod has a compatibility addon and you do not have it installed | true
-| debugCommandEnabled | Only useful in development environments | false
-
-## Crop Growth
-
-Crops will grow at **different speeds** depending on the current season.
-
-<p>
-  <img src="https://i.imgur.com/75gqPqS.png">
-</p>
-
-Each **individual crop** will have a **pre-configured growth speed** for one of the four seasons, this is controlled by a datapack and can be changed by the user if they want. 
-
-<p>
-  <img src="https://i.imgur.com/dR4OYPT.png">
-</p>
-
-Please refer to online tutorials on **how to make a datapack**. Make sure that your `pack_format` is of the correct version for your particular Minecraft Version. If you are lost, there is an example datapack found in the **pinned messages** of the Discord channel.
 
 ## License
 Distributed under the Mozilla Public License 2.0. See `LICENSE` for more information.
